@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tienda de Ropa</title>
+  <style>
+    .modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      background-color: #f0f0f5;
+      color: #333;
+    }
+    h1, h2, h3 {
+      color: #000000;
+    }
+    .sidebar {
+      width: 250px;
+      background-color: #792764;
+      color: white;
+      padding: 20px;
+      height: 100vh;
+      overflow-y: auto;
+      position: fixed;
+      left: 0;
+      top: 0;
+      transition: transform 0.3s ease;
+    }
+    .sidebar.hidden {
+      transform: translateX(-100%);
+    }
+    .sidebar h2 {
+      text-align: center;
+    }
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      display: block;
+      margin: 10px 0;
+    }
+    .content {
+      margin-left: 250px;
+      flex-grow: 1;
+      padding: 20px;
+      transition: margin-left 0.3s ease;
+    }
+    .content.full {
+      margin-left: 0;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .product {
+      border: 1px solid #ccc;
+      padding: 15px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-radius: 5px;
+    }
+    .product button {
+      background-color: #aa2482;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .product button:hover {
+      background-color: #1f6391;
+    }
+    .cart {
+      position: fixed;
+      right: 0;
+      top: 0;
+      width: 300px;
+      background: #ecf0f1;
+      height: 100vh;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    .cart.hidden {
+      transform: translateX(100%);
+    }
+    .cart h3 {
+      margin-top: 0;
+    }
+    .cart li {
+      margin: 5px 0;
+    }
+    .cart button {
+      margin-left: 10px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .register-form {
+      margin-top: 30px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .register-form input, .register-form button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+    }
+    .register-form button {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    .toggle-buttons {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+    }
+    .toggle-buttons button {
+      margin: 5px;
+      padding: 10px;
+      background-color: #aa2482;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    header {
+      text-align: center;
+      background-color: #aa2482;
+      color: white;
+      padding: 20px 0;
+      font-size: 1.8em;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    .category-section {
+      margin-top: 40px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      background-color: #aa2482;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="toggle-buttons">
+    <button onclick="toggleSidebar()">☰ Menú</button>
+    <button onclick="toggleCart()">🛒 Carrito</button>
+  </div>
+
+  <div class="sidebar" id="sidebar">
+    <h1>Categorias</h1>
+    
+<a href="#" onclick="showAllCategories(); toggleSidebar()">Ver Todas</a>
+<a href="#" onclick="showCategory('categoria1'); toggleSidebar()">Ropa Casual</a>
+<a href="#" onclick="showCategory('categoria2'); toggleSidebar()">Ropa Elegante</a>
+<a href="#" onclick="showCategory('categoria3'); toggleSidebar()">Abrigos</a>
+<a href="#" onclick="showCategory('categoria4'); toggleSidebar()">Accesorios</a>
+<a href="#" onclick="openRegisterModal(); toggleSidebar()">Registro</a>
+<a href="#" onclick="openCardModal(); toggleSidebar()">Agregar Tarjeta</a>
+
+
+    </nav>
+    <h3>Redes Sociales</h3>
+    <p>Instagram: @DolceVeste</p>
+    <p>Facebook: DolceVeste</p>
+    <p>WhatsApp: 55 12 99 19 50</p>
+    <h3>Contacto</h3>
+    <p>Email: contacto@DolceVeste.com</p>
+    <p>Tel: +34 123 456 789</p>
+  </div>
+
+  <div class="content" id="mainContent">
+    <header>
+      <img src="dolce veste/IMG-20250528-WA0065.jpg" style="width:15%; height: 150px; border-radius: 5px 5px 0 0;">
+        <h1>Dolce Veste</h1> 
+        <p>"Haz de tu estilo tu firma personal"</p>
+    </header>
+
+<div id="categoria1" class="category-section">
+  <h1>Ropa Casual</h1>
+  <div class="products">
+      <div class="product" data-price="29.99">
+      <img src="ropa casual/1.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Pantalón diseño Mariposa</h3>
+      <p>Algodón 100%, diseño moderno y atractivo.</p>
+      <p>Precio: €29.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="29.99">
+      <img src="ropa casual/2.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Pantalón diseño Vaca</h3>
+      <p>Algodón 100%, diseño moderno y atract</p>
+      <p>Precio: €29.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="29.99">
+      <img src="ropa casual/3.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Pantalón corte de campana</h3>
+      <p>Algodón 100%, diseño moderno ideal para toda ocasión.</p>
+      <p>Precio: €30.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="29.99">
+      <img src="ropa casual/4.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Pantalón diseño de corazones</h3>
+      <p>Algodón 100%, diseño moderno y romantico</p>
+      <p>Precio: €30.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="29.99">
+      <img src="ropa casual/5.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Pantalón Cargo</h3>
+      <p>Algodón 100%, diseño de mezclilla fresco</p>
+      <p>Precio: €24.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="29.99">
+      <img src="ropa casual/6.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Blusa Básica</h3>
+      <p>Algodón 100%, Blusa corta color rosa</p>
+      <p>Precio: €19.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="29.99">
+      <img src="ropa casual/7.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Blusa Básica</h3>
+      <p>Algodón 100%, Blusa corta color verde</p>
+      <p>Precio: €19.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="29.99">
+      <img src="ropa casual/8.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Blusa Básica</h3>
+      <p>Algodón 100%, Blusa corta color blanco</p>
+      <p>Precio: €19.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="29.99">
+      <img src="ropa casual/9.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Blusa Básica</h3>
+      <p>Algodón 100%, Blusa corta floreada</p>
+      <p>Precio: €19.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="29.99">
+      <img src="ropa casual/10.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Blusa Básica</h3>
+      <p>Algodón 100%, Blusa corta colores difuminados </p>
+      <p>Precio: €19.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="29.99">
+      <img src="ropa casual/11.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Blusa Básica</h3>
+      <p>Algodón 100%, Blusa corta color negro </p>
+      <p>Precio: €19.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="29.99">
+      <img src="ropa casual/12.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Blusa Básica</h3>
+      <p>Algodón 100%, Blusa corta color blanco con detalles de perlas</p>
+      <p>Precio: €19.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="29.99">
+      <img src="ropa casual/13.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Blusa Básica</h3>
+      <p>Algodón 100%, Blusa con diseño Búho</p>
+      <p>Precio: €15.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="29.99">
+      <img src="ropa casual/14.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Blusa Básica</h3>
+      <p>Algodón 100%, Blusa color gris con diseño de moño con perlas</p>
+      <p>Precio: €15.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="29.99">
+      <img src="ropa casual/15.jpg" alt="Camiseta Básica" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Blusa Básica</h3>
+      <p>Algodón 100%, Blusa corta color blanco</p>
+      <p>Precio: €19.99</p>
+      <button onclick="addToCart('Camiseta Básica', 29.99)">Agregar al carrito</button>
+    </div>
+    
+  </div>
+</div>
+
+    <div id="categoria2" class="category-section">
+  <h1>Ropa Elegante</h1>
+  <div class="products">
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/1.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Conjunto Elegante</h3>
+      <p>Diseño elegante y moderno.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/2.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Conjunto Elegante</h3>
+      <p>Diseño elegante y moderno color blanco.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/3.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Conjunto Elegante</h3>
+      <p>Diseño elegante y moderno color azul cuadriculado.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/4.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Conjunto Elegante</h3>
+      <p>Diseño elegante y moderno chaleco y pantalón.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/5.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Vestido elegante con top café</h3>
+      <p>Diseño elegante y moderno color balnco.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/6.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Conjunto Elegante</h3>
+      <p>Diseño elegante y moderno short blanco y top café.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/7.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Vestido de Noche</h3>
+      <p>Diseño elegante y moderno negro con blanco.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/8.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Vestido de Noche</h3>
+      <p>Diseño elegante y moderno color rojo.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/9.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Vestido de Noche</h3>
+      <p>Diseño elegante y moderno.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/10.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Vestido</h3>
+      <p>Diseño elegante y moderno con diseño floreado.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/11.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Vestido</h3>
+      <p>Diseño elegante y moderno con diseño floreado.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/12.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Conjunto elegante</h3>
+      <p>Diseño elegante y moderno color azul.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/13.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Conjunto elegante</h3>
+      <p>Diseño elegante y moderno color beige.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/14.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Conjunto elegante</h3>
+      <p>Diseño elegante y moderno color verde.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="49.99">
+      <img src="ropa elegante/15.jpg" alt="Vestido de Noche" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Conjunto elegante</h3>
+      <p>Diseño elegante y moderno color blanco.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Vestido de Noche', 49.99)">Agregar al carrito</button>
+    </div>
+  </div>
+</div>
+
+  <div id="categoria3" class="category-section">
+  <h1>Abrigos</h1>
+  <div class="products">
+    <div class="product" data-price="89.99">
+      <img src="abrigos/1.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Abrigo de Lana Azul</h3>
+      <p>Perfecto para invierno.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+   <div class="product" data-price="89.99">
+      <img src="abrigos/2.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Abrigo de Lana Café</h3>
+      <p>Perfecto para invierno con diseño básico.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="89.99">
+      <img src="abrigos/3.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Abrigo de Lana Gris</h3>
+      <p>Perfecto para invierno.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="89.99">
+      <img src="abrigos/4.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Abrigo de Lana Beige</h3>
+      <p>Perfecto para invierno.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="89.99">
+      <img src="abrigos/5.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Abrigo de Lana Beige</h3>
+      <p>Perfecto para invierno con cierre.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="89.99">
+      <img src="abrigos/6.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Abrigo de Lana Beige</h3>
+      <p>Perfecto para invierno con botones.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="89.99">
+      <img src="abrigos/7.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Abrigo de Lana Gris</h3>
+      <p>Perfecto para invierno con cierre y capucha.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="89.99">
+      <img src="abrigos/8.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Abrigo de Lana Café</h3>
+      <p>Perfecto para invierno.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="89.99">
+      <img src="abrigos/9.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Abrigo de Lana Azul</h3>
+      <p>Perfecto para invierno.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="89.99">
+      <img src="abrigos/10.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Chaqueta Roja</h3>
+      <p>Perfecto para invierno.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="89.99">
+      <img src="abrigos/11.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Abrigo de Lana Biege</h3>
+      <p>Perfecto para invierno con diseño moderno.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="89.99">
+      <img src="abrigos/12.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Abrigo de Lana Blanco</h3>
+      <p>Perfecto para invierno.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="89.99">
+      <img src="abrigos/13.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Abrigo de Lana Negro con Blanco</h3>
+      <p>Perfecto para invierno por su lana de borrego.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="89.99">
+      <img src="abrigos/14.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Chaqueta Verde</h3>
+      <p>Perfecto para invierno con diseño moderno.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="89.99">
+      <img src="abrigos/15.jpg" alt="Abrigo de Lana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Chaqueta Azul</h3>
+      <p>Perfecto para invierno de mezclilla.</p>
+      <p>Precio: €89.99</p>
+      <button onclick="addToCart('Abrigo de Lana', 89.99)">Agregar al carrito</button>
+    </div>
+  </div>
+</div>
+
+<div id="categoria4" class="category-section">
+  <h1>Accesorios</h1>
+  <div class="products">
+    <div class="product" data-price="14.99">
+      <img src="accesorios/1.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Collar de Perla/h3>
+      <p>Estilo casual, ajustable.</p>
+      <p>Precio: €14.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+   <div class="product" data-price="14.99">
+      <img src="accesorios/2.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Collar de perlas blanzas</h3>
+      <p>Estilo casual, ajustable.</p>
+      <p>Precio: €49.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="14.99">
+      <img src="accesorios/3.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Aretes</h3>
+      <p>Estilo casual, con diseño de mariposa.</p>
+      <p>Precio: €14.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="14.99">
+      <img src="accesorios/4.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Aretes</h3>
+      <p>Estilo casual.</p>
+      <p>Precio: €14.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="14.99">
+      <img src="accesorios/5.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Aretes</h3>
+      <p>Estilo casual, con diseño de moño.</p>
+      <p>Precio: €14.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="14.99">
+      <img src="accesorios/6.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Pulsera</h3>
+      <p>Estilo casual, ajustable con diseño de flores.</p>
+      <p>Precio: €14.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="14.99">
+      <img src="accesorios/7.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Collar de perlas blancas</h3>
+      <p>Estilo casual, ajustable con dije de corazón.</p>
+      <p>Precio: €14.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="14.99">
+      <img src="accesorios/8.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Collar</h3>
+      <p>Estilo casual, ajustable con diseño de flores.</p>
+      <p>Precio: €14.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="14.99">
+      <img src="accesorios/9.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Collar</h3>
+      <p>Estilo casual, ajustable con dije de mariposa.</p>
+      <p>Precio: €14.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="14.99">
+      <img src="accesorios/10.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Aretes</h3>
+      <p>Estilo casual, con diseño de estrella.</p>
+      <p>Precio: €14.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="14.99">
+      <img src="accesorios/11.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Aretes</h3>
+      <p>Estilo casual.</p>
+      <p>Precio: €14.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="14.99">
+      <img src="accesorios/12.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Reloj</h3>
+      <p>Estilo casual, ajustable.</p>
+      <p>Precio: €14.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="14.99">
+      <img src="accesorios/13.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Conjunto de pulseras</h3>
+      <p>Estilo casual, ajustable.</p>
+      <p>Precio: €14.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="14.99">
+      <img src="accesorios/14.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Pulsera</h3>
+      <p>Estilo casual, ajustable.</p>
+      <p>Precio: €14.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-price="14.99">
+      <img src="accesorios/15.jpg" alt="Gorra Urbana" style="width: 100%; height: auto; object-fit: contain;">
+      <h3>Conjunto de Pulseras</h3>
+      <p>Estilo casual, ajustable.</p>
+      <p>Precio: €14.99</p>
+      <button onclick="addToCart('Gorra Urbana', 14.99)">Agregar al carrito</button>
+    </div>
+  </div>
+</div>
+
+    <footer>
+      &copy; 2025 Dolce Veste - Todos los derechos reservados
+    </footer>
+  </div>
+
+  <div class="cart hidden" id="cart">
+    <h3>Carrito de Compras</h3>
+    <ul id="cart-items"></ul>
+    <p><strong>Total: €<span id="cart-total">0.00</span></strong></p>
+  </div>
+
+  <script>
+    function showAllCategories() {
+  const sections = document.querySelectorAll('.category-section');
+  sections.forEach(section => {
+    section.style.display = 'block';
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+    function showCategory(categoryId) {
+  const sections = document.querySelectorAll('.category-section');
+  sections.forEach(section => {
+    section.style.display = (section.id === categoryId) ? 'block' : 'none';
+  });
+
+  // Desplaza hacia la parte superior después de cambiar de categoría
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+    function openRegisterModal() {
+  document.getElementById("registerModal").classList.remove("hidden");
+}
+
+function closeRegisterModal() {
+  document.getElementById("registerModal").classList.add("hidden");
+}
+
+    let total = 0;
+    function addToCart(product, price) {
+      const itemList = document.getElementById("cart-items");
+      const item = document.createElement("li");
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "Eliminar";
+      removeBtn.onclick = function() {
+        itemList.removeChild(item);
+        total -= price;
+        document.getElementById("cart-total").textContent = total.toFixed(2);
+      };
+      item.textContent = `${product} - €${price.toFixed(2)}`;
+      item.appendChild(removeBtn);
+      itemList.appendChild(item);
+      total += price;
+      document.getElementById("cart-total").textContent = total.toFixed(2);
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const content = document.getElementById("mainContent");
+      sidebar.classList.toggle("hidden");
+      content.classList.toggle("full");
+    }
+
+    function toggleCart() {
+      const cart = document.getElementById("cart");
+      cart.classList.toggle("hidden");
+    }
+   
+document.addEventListener('DOMContentLoaded', () => {
+  showCategory('categoria1');
+});
+
+function openCardModal() {
+  document.getElementById("cardModal").classList.remove("hidden");
+}
+function closeCardModal() {
+  document.getElementById("cardModal").classList.add("hidden");
+}
+
+
+  </script>
+ 
+<div id="registerModal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close-button" onclick="closeRegisterModal()">&times;</span>
+    <h2>Formulario de Registro</h2>
+    <form onsubmit="event.preventDefault(); alert('Registro enviado.'); closeRegisterModal();">
+      <label>Nombre:<br><input type="text" required></label><br>
+      <label>Email:<br><input type="email" required></label><br>
+      <label>Contraseña:<br><input type="password" required></label><br>
+      <button type="submit">Registrarse</button>
+    </form>
+  </div>
+</div>
+<div id="cardModal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close-button" onclick="closeCardModal()">&times;</span>
+    <h2>Agregar Tarjeta Bancaria</h2>
+    <form onsubmit="event.preventDefault(); alert('Tarjeta registrada con éxito'); closeCardModal();">
+      <label>Nombre en la tarjeta:<br><input type="text" required></label><br>
+      <label>Número de tarjeta:<br><input type="text" pattern="\\d{16}" required placeholder="1234 5678 9012 3456"></label><br>
+      <label>Fecha de expiración:<br><input type="month" required></label><br>
+      <label>CVV:<br><input type="text" pattern="\\d{3}" required placeholder="123"></label><br>
+      <button type="submit">Guardar Tarjeta</button>
+    </form>
+  </div>
+</div>
+
+
+</body>
+</html>
